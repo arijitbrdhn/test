@@ -1,0 +1,40 @@
+Q.1> answer - C
+Description - Node js is built from chrome's v8 engine so it can run in client side but it also uses the frameworks to build a server that's why it also can be run on server
+
+Q.2> answer - C
+Description - Although Node is build from js but in js we have to use some special func to make it non-blocking but node js is made for non-blocking format so that it's response time is fast and the only way it can be possible through Asynchronous
+
+Q.3> answer - D
+Description - To make a web-app dynamic node can be run on any cross flatforms that's why it supports all the above system
+
+Q.4> answer - A
+Description - REPL is used to give the preview of node js app via the command - "node filename",it shows the preview because through this we can read,eval,print and loop the expressions
+
+Q.5> answer - 
+
+
+Q.6> answer - B
+Description - Node is came from js which is single threaded and here too it's execution is going on a single thread althrough it's uses various queues for non-blocking
+
+Q.7> answer - A
+Description - Basically Node is a combination of various modules where functionalities confined in  js files we have to require it before use it everywhere
+
+Q.8> answer - C
+Description - For routing purposes where we have to use a function on various files we use the command - "module.exports"
+
+Q.9> answer - A
+Description - Third party module we can install through npm and it did installed in node_modules folder through a command - "npm install module_name"
+
+Q.10> answer - D
+Description - http is the core module through which we can create a web server using createServer() function
+
+Q.11> answer - A
+Description - To require a module we need to require through require() function , inside the braces we give the module name and assign it to a variable to use anywhere
+
+Q.12> answer - D
+Description - Using various modules like socket.io etc. we can create all the services above
+
+Q.13> answer - C
+Description - Node is eligible to access both relational database and no-SQL database to make the web app deploy to everywhere.  
+
+Q.1> answer - undefined,2
