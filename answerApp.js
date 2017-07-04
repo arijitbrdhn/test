@@ -6,6 +6,7 @@ var body = require('body-parser');
 var mongoose = require('mongoose');
 var multer  = require('multer');
 var nodemailer = require('nodemailer');
+var crypto = require('crypto');
 var schema = mongoose.Schema;
 var url = "mongodb://127.0.0.1:27017/affle";
 var counter = 0;
@@ -77,7 +78,11 @@ mongoose.connect(url,function(err){
 		})
 		res.redirect(Url);
 	});*/
-	var doc = new model({username:username, email:email, password:password, mobile:mobile, counter:0})
+  var myKey = crypto.createCipher('aes-256-ctr','myPassword');
+  var myPass = myKey.update(password,'utf8','hex');
+  //myPass += myPass.update.final('hex');
+  console.log(myPass);
+	var doc = new model({username:username, email:email, password:myPass, mobile:mobile, counter:0})
   doc.image.data = path;
   //res.send(reply);
 	
@@ -85,7 +90,7 @@ mongoose.connect(url,function(err){
 			if(err)
 			res.send(err);
 			else{
-			fs.appendFile('answerApp.txt', "\n Succesfully Registered", function(err){	
+			fs.appendFile('answerApp.txt', "\n Succesfully Registered "+new Date(), function(err){	
 			res.redirect("http://localhost:8000/");
 		});
 		}
@@ -134,7 +139,7 @@ app.post('/login',function(req,res){
               })
               }
                 else {
-             fs.appendFile('answerApp.txt',"\n Succesfully Loggedin",function(err){	
+             fs.appendFile('answerApp.txt',"\n Succesfully Loggedin"+new Date(),function(err){	
             	 //console.log(url);
                //res.redirect(url);
 			         res.write(reply);
@@ -149,7 +154,7 @@ app.post('/otp',function(req,res){
 	if(otp!=OTP)
 	res.send("OTP doesnot match")
 	else{
-    fs.appendFile('answerApp.txt',"\n Succesfully Loggedin",function(err){	
+    fs.appendFile('answerApp.txt',"\n Succesfully Loggedin"+new Date(),function(err){	
     	  //console.log(url);
         //res.redirect(url);
 	      res.write(reply);
@@ -169,7 +174,66 @@ model.remove({"email":email},function(err,doc){
   })
  });
 
+app.get('/mail',function(req,res){
+      res.sendFile(__dirname+'/getEmail.html');
+     });
+
+app.post('/send',function(req,res){
+    var email = req.body.email;
+    var mailOptions = {
+    from: '"Our Code World " <arijitbardhan1991@gmail.com>', 
+    to: email, 
+    subject: 'Retrieve Password', 
+    text: "http://localhost:8000/reset"
+  };
+
+  model.findOne({"email":email},function(err,doc){
+    if(err)
+      res.send(err);
+    if(doc==null)
+      res.send("Give correct email Id ");
+    else{
+     transporter.sendMail(mailOptions, function(error, info){
+                  if(error){
+                return console.log(error);
+                   }
+               res.send("A message has been sent to your email-Id");
+               console.log('Message sent: ' + info.response);
+        });
+       }});
+
+app.get('/reset',function(req,res){
+   res.sendFile(__dirname+'/resetPass.html');
+});
+
+app.post('/resetPassword',function(req,res){
+  var newPassword = req.body.newPassword;
+  var confirmPassword = req.body.confirmPassword;
+  var myKey = crypto.createCipher('aes-256-ctr','myPassword');
+  var myPass = myKey.update(confirmPassword,'utf8','hex');
+     if(newPassword==confirmPassword){
+       model.updateOne({"email":email},{$set:{"password":myPass}},function(err){
+       if(err)
+        res.send(err);
+       else
+        res.send("Password Changed Succesfully");
+       });
+      }
+     else {
+     res.send("Passwords didn't match")
+       }
+      });
+    });
+
 app.listen(8000);
+
+
+
+
+
+
+
+
 
 
 
