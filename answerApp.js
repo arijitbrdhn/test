@@ -116,7 +116,10 @@ app.post('/login',function(req,res){
 	var email = req.body.email;
 	var password = req.body.password;
   var reply='';
- model.findOne({"email":email,"password":password},function(err,doc){
+  var profileInfo;
+  var myKey = crypto.createCipher('aes-256-ctr','myPassword');
+  var myPass = myKey.update(password,'utf8','hex');
+ model.findOne({"email":email,"password":myPass},function(err,doc){
  
 			     if(err)
 			         res.send(err);
@@ -129,6 +132,7 @@ app.post('/login',function(req,res){
              }); 
             }      
                else{
+             profileInfo = doc ;
              reply = " Your username is " + doc.username + "\n Your E-mail id is " + doc.email + "\n Your image is " + doc.image.data + "\n Your mobile number is " + doc.mobile;
              model.findOne({"email":email},function(err,doc){
              url = doc.image;
@@ -142,7 +146,7 @@ app.post('/login',function(req,res){
              fs.appendFile('answerApp.txt',"\n Succesfully Loggedin"+new Date(),function(err){	
             	 //console.log(url);
                //res.redirect(url);
-			         res.write(reply);
+			         res.write(doc.image.data);
 			         res.end();
 		     });
              }
@@ -157,11 +161,46 @@ app.post('/otp',function(req,res){
     fs.appendFile('answerApp.txt',"\n Succesfully Loggedin"+new Date(),function(err){	
     	  //console.log(url);
         //res.redirect(url);
-	      res.write(reply);
+	      res.write(profileInfo.image.data);
 	      res.end();
      });
     }
    });
+app.get('/edit',function(req,res){
+  res.sendFile(__dirname+"/editProfile.html")
+});
+app.post('/editAccount',upload.any(),function(req,res){
+    var editPass = req.body.editPass;
+    var editMob = req.body.editMob;
+    var editImage = req.files;
+    console.log(editImage);
+    console.log(editMob);
+    console.log(editPass);
+
+       if(editImage[0]!= undefined){
+      var path = fs.readFileSync(editImage[0].path);
+      model.updateOne({"email":email},{$set:{"image.data":path}},function(err,data){
+        if(err)
+          console.log(err);
+        })
+       }
+       if(editPass!= ""){
+     var myKey = crypto.createCipher('aes-256-ctr','myPassword');
+     var myPass = myKey.update(editPass,'utf8','hex');
+      model.updateOne({"email":email},{$set:{"password":myPass}},function(err,data){
+        if(err)
+          console.log(err);
+        })
+       }
+       if(editMob!= ""){
+      model.updateOne({"email":email},{$set:{"mobile":editMob}},function(err,data){
+        if(err)
+          console.log(err);
+        })
+       }
+    res.write("Your profile has been successfully edited");
+    res.end();
+    });
 
 app.get('/delete',function(req,res){
 model.remove({"email":email},function(err,doc){
